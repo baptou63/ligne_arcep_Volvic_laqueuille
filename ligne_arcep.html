@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Carte Interactive Volvic - Laqueuille</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.5/dist/leaflet.css"/>
+  <style>
+    #map { height: 100vh; width: 100%; }
+    .legend { background: white; padding: 10px; line-height: 1.5em; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.5/dist/leaflet.js"></script>
+<script>
+  // Initialisation de la carte centrée approximativement entre Volvic et Laqueuille
+  var map = L.map('map').setView([45.75, 2.85], 10);
+
+  // Fond OpenStreetMap
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Couleurs par opérateur
+  var couleurs = {
+    'Orange': '#FF8000',
+    'SFR': '#CC0000',
+    'Bouygues': '#0000CC',
+    'Free': '#00CC00'
+  };
+
+  // Exemples de polygones de couverture mobile (simplifiés)
+  var couverture = [
+    {operateur: 'Orange', coords: [[45.86, 3.00],[45.82, 2.92],[45.78, 2.98],[45.82, 3.05]]},
+    {operateur: 'SFR', coords: [[45.80, 2.90],[45.76, 2.82],[45.72, 2.88],[45.76, 2.95]]},
+    {operateur: 'Bouygues', coords: [[45.78, 2.96],[45.74, 2.88],[45.70, 2.94],[45.74, 3.02]]},
+    {operateur: 'Free', coords: [[45.82, 2.98],[45.78, 2.90],[45.74, 2.96],[45.78, 3.04]]}
+  ];
+
+  couverture.forEach(function(zone){
+    L.polygon(zone.coords, {color: couleurs[zone.operateur], fillOpacity:0.4})
+      .bindPopup(zone.operateur + ' 4G/5G')
+      .addTo(map);
+  });
+
+  // Tracé ferroviaire approximatif Volvic ↔ Laqueuille
+  var cheminFerre = [
+    [45.8644, 3.0033], // Volvic
+    [45.8400, 2.9500],
+    [45.8000, 2.9000],
+    [45.7500, 2.8800],
+    [45.7000, 2.8495] // Laqueuille
+  ];
+  L.polyline(cheminFerre, {color: 'red', weight: 4}).addTo(map)
+    .bindPopup('Tracé ferroviaire Volvic ↔ Laqueuille');
+
+  // Légende
+  var legend = L.control({position: 'bottomright'});
+  legend.onAdd = function(map) {
+    var div = L.DomUtil.create('div', 'legend');
+    div.innerHTML += '<b>Légende</b><br>';
+    for (var op in couleurs) {
+      div.innerHTML += '<i style="background:' + couleurs[op] + ';width:15px;height:15px;display:inline-block;margin-right:5px;"></i>' + op + '<br>';
+    }
+    div.innerHTML += '<i style="background:red;width:15px;height:15px;display:inline-block;margin-right:5px;"></i>Tracé ferroviaire';
+    return div;
+  };
+  legend.addTo(map);
+</script>
+</body>
+</html>
