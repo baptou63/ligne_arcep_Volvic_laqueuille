@@ -32,3 +32,12 @@
   </script>
 </body>
 </html>
+fetch('data/coverage.geojson')
+  .then(response => response.json())
+  .then(data => {
+    L.geoJSON(data, {
+      style: function (feature) {
+        return {color: feature.properties.color};
+      }
+    }).addTo(map);
+  });
